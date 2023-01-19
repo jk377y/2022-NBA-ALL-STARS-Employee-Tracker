@@ -1,9 +1,9 @@
 INSERT INTO department (departmentName)
 VALUES
-(`Team Durant Players`),  -- 1
-(`Team Lebron Players`),  -- 2
-(`Team Durant Coaches`),  -- 3
-(`Team Lebron Coaches`);  -- 4
+(1, `Team Durant Players`),  -- 1
+(2, `Team Lebron Players`),  -- 2
+(3, `Team Durant Coaches`),  -- 3
+(4, `Team Lebron Coaches`);  -- 4
 
 INSERT INTO role (id, title, salary, departmentId)
 VALUES
@@ -13,11 +13,12 @@ VALUES
     (4, `Team Lebron Forward`, 7000000, 2),
     (5, `Team Durant Center`, 5000000, 1),
     (6, `Team Lebron Center`, 5000000, 2),
-    (7, `Team Durant Captain`, 350000, 3),
-    (8, `Team Lebron Captain`, 350000, 4),
+    (7, `Team Durant Captain`, 350000, 1),
+    (8, `Team Lebron Captain`, 350000, 2),
     (9, `Team Durant Head Coach`, 2000000, 3),
     (10, `Team Lebron Head Coach`, 2000000, 4);
-INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
     (`Kevin`,`Durant`,7,9),
     (`Joel`,`Embiid`,5,7),
