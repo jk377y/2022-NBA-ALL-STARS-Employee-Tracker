@@ -22,27 +22,36 @@ async function main() {
 
 // set up function
 const getInputs = async () => {
-        const answers = await inquirer.prompt([
-                {
-                        type: 'list',
-                        name: 'chooseTask',
-                        message: 'Choose one of the options below.',
-                        choices: [
-                                'View all Departments',
-                                'View all Roles',
-                                'View all Employees',
-                                'Add a Department',
-                                'Add a Role',
-                                'Add an Employee',
-                                'Update an Employee',
-                                'Exit'
-                        ]
-                }
-        ]);
-        
-
+    const answers = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'chooseTask',
+            message: 'Choose one of the options below.',
+            choices: [
+                'View all Departments',
+                'View all Roles',
+                'View all Employees',
+                'Add a Department',
+                'Add a Role',
+                'Add an Employee',
+                'Update an Employee',
+                'Exit'
+            ]
+        }
+    ]);
+    switch (answers.chooseTask) {
+        case 'View all Departments':
+            await viewAllDepartments();
+            break;
+        case 'View all Roles':
+            await viewAllRoles();
+            break;
+    }
 
 }
+
+viewAllDepartments()
+viewAllRoles()
 
 // START()://switch/inquirer inputs  -> choose  view/add/update
         // view(),add(),update()
