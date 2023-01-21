@@ -1,11 +1,48 @@
-const inquirer = require('inquirer')
-const mysql2 = require('mysql2')
-const cTable = require('console.table')
+//const inquirer = require('inquirer')
 
+//const cTable = require('console.table')
+const dotenv = require('dotenv')
+const PORT = process.env.PORT || 3001
 
 // connection/login credentials
-// set up function
+async function main() {
+        const mysql = require('mysql2/promise')
+        const connection = await mysql.createConnection(
+                {
+                        host: process.env.HOST,
+                        user: process.env.USER,
+                        password: process.env.DATABASE,
+                        database: process.env.PASSWORD
+                },
+                //console.error(err),
+                //console.log(result)
+        )
+}
 
+
+// set up function
+const getInputs = async () => {
+        const answers = await inquirer.prompt([
+                {
+                        type: 'list',
+                        name: 'chooseTask',
+                        message: 'Choose one of the options below.',
+                        choices: [
+                                'View all Departments',
+                                'View all Roles',
+                                'View all Employees',
+                                'Add a Department',
+                                'Add a Role',
+                                'Add an Employee',
+                                'Update an Employee',
+                                'Exit'
+                        ]
+                }
+        ]);
+        
+
+
+}
 
 // START()://switch/inquirer inputs  -> choose  view/add/update
         // view(),add(),update()
