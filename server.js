@@ -1,71 +1,133 @@
-//const inquirer = require('inquirer')
-
-//const cTable = require('console.table')
+const inquirer = require('inquirer')
+const cTable = require('console.table')
 const dotenv = require('dotenv')
-const PORT = process.env.PORT || 3001
+const mysql = require('mysql2')
 
-// connection/login credentials
-async function main() {
+// *************************************************************************************
+// Connection - using variables from dotenv file for security purposes
+// *************************************************************************************
+require('dotenv').config()
+async function connect() {
+    try {
         const mysql = require('mysql2/promise')
-        const connection = await mysql.createConnection(
-                {
-                        host: process.env.HOST,
-                        user: process.env.USER,
-                        password: process.env.DATABASE,
-                        database: process.env.PASSWORD
-                },
-                //console.error(err),
-                //console.log(result)
-        )
-}
+        const connection = await mysql.createConnection({
+            host: process.env.HOST,
+            user: process.env.USER,
+            port: process.env.PORT,
+            database: process.env.DATABASE,
+            password: process.env.PASSWORD
+        })
+        console.log("Connection established successfully.")
+    } catch (err) {
+        console.log(`Error: ${err.message}`)
+    }
+}   connect()
 
-
-// set up function
-const getInputs = async () => {
+// *************************************************************************************
+// Start Menu - gives View, Add, Update and Exit options
+// *************************************************************************************
+const start = async () => {
     const answers = await inquirer.prompt([
         {
             type: 'list',
-            name: 'chooseTask',
+            name: 'start',
+            message: 'Choose one of the options below.',
+            choices: [
+                'View Options',
+                'Add Options',
+                'Update Options',
+                'Exit'
+            ]
+        }
+    ]);
+    switch (answers.start) {
+        case 'View Options':
+            await views()
+            break;
+        case 'Add Options':
+            await adds()
+            break;
+        case 'Update Options':
+            await updates()
+            break;
+        case 'Exit':
+            await exit()
+    };
+};
+
+// *************************************************************************************
+// View Menu - gives viewAllDepartments, viewAllRoles, ViewAllEmployees and Exit options
+// *************************************************************************************
+const views = async () => {
+    const answers = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'views',
             message: 'Choose one of the options below.',
             choices: [
                 'View all Departments',
                 'View all Roles',
                 'View all Employees',
-                'Add a Department',
-                'Add a Role',
-                'Add an Employee',
-                'Update an Employee',
                 'Exit'
             ]
         }
     ]);
-    switch (answers.chooseTask) {
+    switch (answers.views) {
         case 'View all Departments':
-            await viewAllDepartments();
+            await viewAllDepartments()
             break;
         case 'View all Roles':
-            await viewAllRoles();
+            await viewAllRoles()
             break;
-    }
+        case 'View all Employees':
+            await viewAllEmployees()
+            break;
+    };
+}; 
+        
+// *************************************************************************************
+// Add Menu - gives addDepartment, addRole, addEmployee and Exit options
+// *************************************************************************************
+const adds = async () => {
+    const answers = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'adds',
+            message: 'Choose one of the options below.',
+            choices: [
+                'Add a Department',
+                'Add a Role',
+                'Add an Employee',
+                'Exit'
+            ]
+        }
+    ]);
+    switch (answers.adds) {
+        case 'Add a Department':
+            await addDepartment()
+            break;
+        case 'Add a Role':
+            await addRole()
+            break;
+        case 'Add an Employee':
+            await addEmployee()
+            break;
+    };
+};
 
-}
-
-viewAllDepartments()
-viewAllRoles()
-
-// START()://switch/inquirer inputs  -> choose  view/add/update
-        // view(),add(),update()
+        
+  
 
 
-// inquirer:list -> view:  allEmployees, allDepts, allRoles
-        //viewAllE(), viewAllD(), viewAllR()
-
-// inquirer:list -> add:  addEmployee, add Depts, addRoles
-        //addE(), addD(), addR()
-
-// inquirer:list -> update:  employee, dept, role
-        //updateE(),updateD(),updateR()
-
-// loop back to the START()
 
 
+// exit()
+// views()
+// adds()
+// updates()
+// viewAllDepartments()
+// viewAllRoles()
+// viewAllEmployees()
+// addDepartment()
+// addRole()
+// addEmployee()
