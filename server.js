@@ -112,6 +112,9 @@ const adds = async () => {
         case 'Add an Employee':
             await addEmployee()
             break;
+        case 'Exit':
+            await exit()
+            break;
     };
 };
 
