@@ -1,136 +1,139 @@
+const mysql = require('mysql2')
 const inquirer = require('inquirer')
 const cTable = require('console.table')
 const dotenv = require('dotenv')
-const mysql = require('mysql2')
+require('dotenv').config()
+
+// query database in scope with .promise
+//  const [rows, fields] =  connection.execute('SELECT * FROM `table` WHERE `name` = ? AND `age` > ?', ['Morty', 14]);
 
 // *************************************************************************************
 // Connection - using variables from dotenv file for security purposes
 // *************************************************************************************
-require('dotenv').config()
-async function connect() {
-    try {
-        const mysql = require('mysql2/promise')
-        const connection = await mysql.createConnection({
-            host: process.env.HOST,
-            user: process.env.USER,
-            port: process.env.PORT,
-            database: process.env.DATABASE,
-            password: process.env.PASSWORD
-        })
-        console.log("Connection established successfully.")
-    } catch (err) {
-        console.log(`Error: ${err.message}`)
-    }
-}   connect()
+const db = mysql.createConnection({
+    host: process.env.HOST,
+    port: process.env.PORT,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    Promise: Promise
+});
+
+db.connect(function(err) {
+    if (err) throw err;
+    console.log("Database is connected!");
+    startMenu();
+    });
 
 // *************************************************************************************
 // Start Menu - gives View, Add, Update and Exit options
 // *************************************************************************************
-const start = async () => {
-    const answers = await inquirer.prompt([
+function startMenu() {
+    // Present main menu options to the user
+    inquirer.prompt([
         {
-            type: 'list',
-            name: 'start',
-            message: 'Choose one of the options below.',
+            type: "list",
+            name: "menu",
+            message: "What would you like to do?",
             choices: [
-                'View Options',
-                'Add Options',
-                'Update Options',
-                'Exit'
+                "View all departments",
+                "View all roles",
+                "View all employees",
+                "Add a department",
+                "Add a role",
+                "Add an employee",
+                "Update an employee role",
+                "Exit"
             ]
         }
-    ]);
-    switch (answers.start) {
-        case 'View Options':
-            await views()
-            break;
-        case 'Add Options':
-            await adds()
-            break;
-        case 'Update Options':
-            await updates()
-            break;
-        case 'Exit':
-            await exit()
-    };
+    ]).then(answer => {
+        // Call the corresponding functions based on the user's choice
+        switch (answer.menu) {
+            case "View all departments":
+                viewAllDepartments();
+                break;
+            case "View all roles":
+                viewAllRoles();
+                break;
+            case "View all employees":
+                viewAllEmployees();
+                break;
+            case "Add a department":
+                addDepartment();
+                break;
+            case "Add a role":
+                addRole();
+                break;
+            case "Add an employee":
+                addEmployee();
+                break;
+            case "Update an employee role":
+                updateEmployeeRole();
+                break;
+            case "Exit":
+                exit();
+                break;
+        }
+    });
+}
+
+const viewAllDepartments = async () => {
+    db.query("SELECT * FROM departmentTable", (err, result) => {
+        if (err) {
+            console.log("An Error Occured: ", err);
+        } else {
+            console.table(result);
+        }
+    });
 };
 
-// *************************************************************************************
-// View Menu - gives viewAllDepartments, viewAllRoles, ViewAllEmployees and Exit options
-// *************************************************************************************
-const views = async () => {
-    const answers = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'views',
-            message: 'Choose one of the options below.',
-            choices: [
-                'View all Departments',
-                'View all Roles',
-                'View all Employees',
-                'Exit'
-            ]
+const viewAllRoles = async () => {
+    db.query("SELECT * FROM roleTable", (err, result) => {
+        if (err) {
+            console.log("An Error Occured: ", err);
+        } else {
+            console.table(result);
         }
-    ]);
-    switch (answers.views) {
-        case 'View all Departments':
-            await viewAllDepartments()
-            break;
-        case 'View all Roles':
-            await viewAllRoles()
-            break;
-        case 'View all Employees':
-            await viewAllEmployees()
-            break;
-    };
-}; 
-        
-// *************************************************************************************
-// Add Menu - gives addDepartment, addRole, addEmployee and Exit options
-// *************************************************************************************
-const adds = async () => {
-    const answers = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'adds',
-            message: 'Choose one of the options below.',
-            choices: [
-                'Add a Department',
-                'Add a Role',
-                'Add an Employee',
-                'Exit'
-            ]
-        }
-    ]);
-    switch (answers.adds) {
-        case 'Add a Department':
-            await addDepartment()
-            break;
-        case 'Add a Role':
-            await addRole()
-            break;
-        case 'Add an Employee':
-            await addEmployee()
-            break;
-        case 'Exit':
-            await exit()
-            break;
-    };
+    });
 };
 
-        
-  
+const viewAllEmployees = async () => {
+    db.query("SELECT * FROM employeeTable", (err, result) => {
+        if (err) {
+            console.log("An Error Occured: ", err);
+        } else {
+            console.table(result);
+        }
+    });
+};
+
+const addDepartment = async () => {
+    try {
+        const answer = await inquirer.prompt ([
+            {
+                type: "input",
+                name: "deptName",
+                message: "Enter the name of the new department:"
+            }
+        ]);
+        const {deptName} = answer;
+        const query = `INSERT INTO departmentTable (deptName) VALUES ('${deptName}')`;
+        await db.promise().query(query);
+        console.log(`Department ${deptName} added successfully`);
+    }   
+    catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+};
 
 
 
 
-// exit()
-// views()
-// adds()
-// updates()
-// viewAllDepartments()
-// viewAllRoles()
-// viewAllEmployees()
+// todos:
 // addDepartment()
 // addRole()
 // addEmployee()
+// updateEmployeeRole()
+// exit()
+
+
