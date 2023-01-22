@@ -4,8 +4,6 @@ const cTable = require('console.table')
 const dotenv = require('dotenv')
 require('dotenv').config()
 
-// query database in scope with .promise
-//  const [rows, fields] =  connection.execute('SELECT * FROM `table` WHERE `name` = ? AND `age` > ?', ['Morty', 14]);
 
 // *************************************************************************************
 // Connection - using variables from dotenv file for security purposes
@@ -30,6 +28,7 @@ db.connect(function(err) {
 // *************************************************************************************
 function startMenu() {
     // Present main menu options to the user
+    console.log("********** MAIN MENU **********")
     inquirer.prompt([
         {
             type: "list",
@@ -40,7 +39,6 @@ function startMenu() {
                 "View all roles",
                 "View all employees",
                 "View Salaries by department",
-                "View employees by manager",
                 "Add a department",
                 "Add a role",
                 "Add an employee",
@@ -65,9 +63,6 @@ function startMenu() {
                 break;
             case "View Salaries by department":
                 viewSalariesByDepartment();
-                break;
-            case "View employees by manager":
-                viewEmployeesByManager();
                 break;
             case "Add a department":
                 addDepartment();
@@ -96,6 +91,10 @@ function startMenu() {
         }
     });
 }
+
+// *************************************************************************************
+// View fuctions - departments, role, employees and salaries by department
+// *************************************************************************************
 
 const viewAllDepartments = async () => {
     db.query("SELECT * FROM departmentTable", (err, result) => {
@@ -130,6 +129,28 @@ const viewAllEmployees = async () => {
     });
 };
 
+async function viewSalariesByDepartment() {
+    try {
+        // Get the total salary for each department
+        const query = `
+        SELECT departmentTable.deptName as department, 
+        SUM(roleTable.salary) as total_salary
+        FROM employeeTable
+        JOIN roleTable ON employeeTable.roleId = roleTable.id 
+        JOIN departmentTable ON roleTable.departmentId = departmentTable.id 
+        GROUP BY departmentTable.id;`;
+        const [rows] = await db.promise().query(query);
+        console.table("\n", rows, "\n");
+        startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+};
+
+// *************************************************************************************
+// Add fuctions - departments, role and employees
+// *************************************************************************************
+
 async function addDepartment() {
     try {
         const answer = await inquirer.prompt ([
@@ -162,16 +183,16 @@ async function addRole() {
                 type: "input",
                 name: "roleSalary",
                 message: "Enter the salary of the new role:"
-            },
-            {
-                type: "input",
-                name: "deptId",
-                message: "Enter the department id of the new role:"
             }
+            // {
+            //     type: "input",
+            //     name: "deptId",
+            //     message: "Enter the department id of the new role:"
+            // }
         ]);
         const {roleTitle, roleSalary, deptId} = answer;
-        const query = `INSERT INTO roleTable (title, salary, departmentId) 
-                        VALUES ('${roleTitle}', '${roleSalary}', '${deptId}')`;
+        const query = `INSERT INTO roleTable (title, salary) 
+                        VALUES ('${roleTitle}', '${roleSalary}')`; //, '${deptId}' , departmentId
         await db.promise().query(query);
         console.log(`Role ${roleTitle} added successfully`);
         startMenu();
@@ -220,6 +241,10 @@ async function addEmployee() {
         console.log("Error Occurred: ", err);
     }
 }
+
+// *************************************************************************************
+// Delete fuctions - departments, role and employees
+// *************************************************************************************
 
 async function deleteDepartment() {
     try {
@@ -303,6 +328,10 @@ async function deleteEmployee() {
     }
 }
 
+// *************************************************************************************
+// Update function - employee
+// *************************************************************************************
+
 async function updateEmployee() {
     try {
         // Get existing employees from the database
@@ -353,52 +382,54 @@ async function updateEmployee() {
     }
 }
 
-async function viewSalariesByDepartment() {
-    try {
-        // Get the total salary for each department
-        const query = `
-        SELECT departmentTable.deptName as department, 
-        SUM(roleTable.salary) as total_salary
-        FROM employeeTable
-        JOIN roleTable ON employeeTable.roleId = roleTable.id 
-        JOIN departmentTable ON roleTable.departmentId = departmentTable.id 
-        GROUP BY departmentTable.id;`;
-        const [rows] = await db.promise().query(query);
-        console.table("\n", rows, "\n");
-        startMenu();
-    } catch (err) {
-        console.log("Error Occurred: ", err);
-    }
-};
+// *************************************************************************************
+// Exit function
+// *************************************************************************************
 
-
-function viewEmployeesByManager() {
-    let sql = "SELECT * FROM employeeTable WHERE managerId = 9 or managerId = 10 or managerId is null";
-    db.query(sql, function (err, results) {
-        if (err) throw err;
-        let managers = results.map(result => result.firstName + " " + result.lastName);
-        inquirer.prompt([
-            {
-                type: "list",
-                name: "manager",
-                message: "Select a manager",
-                choices: managers
+function exit() {
+    console.log("Thanks for using me!");
+    if (db.state === 'disconnected') {
+        console.log("Database connection already closed");
+    } else {
+        db.end(function(err) {
+            if (err) {
+                console.log("Error while closing the connection:", err);
+                process.exit(1);
             }
-        ]).then(answer => {
-            let selectedManager = answer.manager;
-            let sql = "SELECT * FROM employeeTable WHERE id = (SELECT id FROM employeeTable WHERE CONCAT(firstName, ' ', lastName) = ?)";
-            db.query(sql, [selectedManager], function (err, results) {
-                //console.log([selectedManager]);
-                if (err) throw err;
-                console.table("\n", results, "\n");
-                startMenu();
-            });
+            console.log("Database connection closed successfully");
         });
-    });
+    }
+    process.exit();
 }
 
 
-// todos:
-// exit()
+
+
+// couldn't get this to work correctly
+// function viewEmployeesByManager() {
+//     let sql = "SELECT * FROM employeeTable WHERE managerId = 9 or managerId = 10 or managerId is null";
+//     db.query(sql, function (err, results) {
+//         if (err) throw err;
+//         let managers = results.map(result => result.firstName + " " + result.lastName);
+//         inquirer.prompt([
+//             {
+//                 type: "list",
+//                 name: "manager",
+//                 message: "Select a manager",
+//                 choices: managers
+//             }
+//         ]).then(answer => {
+//             let selectedManager = answer.manager;
+//             let sql = "SELECT * FROM employeeTable WHERE id = (SELECT id FROM employeeTable WHERE CONCAT(firstName, ' ', lastName) = ?)";
+//             db.query(sql, [selectedManager], function (err, results) {
+//                 //console.log([selectedManager]);
+//                 if (err) throw err;
+//                 console.table("\n", results, "\n");
+//                 startMenu();
+//             });
+//         });
+//     });
+// }
+
 
 
