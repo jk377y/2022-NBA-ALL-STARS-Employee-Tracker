@@ -17,7 +17,7 @@ id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 title VARCHAR(100) NOT NULL,
 salary DECIMAL NOT NULL,
 departmentId INT,
-FOREIGN KEY (departmentId) REFERENCES departmentTable(id)
+FOREIGN KEY (departmentId) REFERENCES department(id) ON DELETE SET NULL
 );
 
 CREATE TABLE employeeTable (
@@ -25,7 +25,7 @@ id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 firstName VARCHAR(50) NOT NULL,
 lastName VARCHAR(50) NOT NULL,
 roleId INT,
-FOREIGN KEY (roleId) REFERENCES roleTable(id),
 managerId INT
-FOREIGN KEY (managerId) REFERENCES employeeTable(id)
+FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE SET NULL,
+FOREIGN KEY (managerId) REFERENCES employee(id) ON DELETE SET NULL 
 );

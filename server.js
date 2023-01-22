@@ -40,6 +40,7 @@ function startMenu() {
                 "View all roles",
                 "View all employees",
                 "View Salaries by department",
+                "View employees by manager",
                 "Add a department",
                 "Add a role",
                 "Add an employee",
@@ -64,6 +65,9 @@ function startMenu() {
                 break;
             case "View Salaries by department":
                 viewSalariesByDepartment();
+                break;
+            case "View employees by manager":
+                viewEmployeesByManager();
                 break;
             case "Add a department":
                 addDepartment();
@@ -98,7 +102,7 @@ const viewAllDepartments = async () => {
         if (err) {
             console.log("An Error Occured: ", err);
         } else {
-            console.table(result);
+            console.table("\n", result, "\n");
             startMenu();
         }
     });
@@ -109,7 +113,7 @@ const viewAllRoles = async () => {
         if (err) {
             console.log("An Error Occured: ", err);
         } else {
-            console.table(result);
+            console.table("\n", result, "\n");
             startMenu();
         }
     });
@@ -120,7 +124,7 @@ const viewAllEmployees = async () => {
         if (err) {
             console.log("An Error Occured: ", err);
         } else {
-            console.table(result);
+            console.table("\n", result, "\n");
             startMenu();
         }
     });
@@ -360,12 +364,38 @@ async function viewSalariesByDepartment() {
         JOIN departmentTable ON roleTable.departmentId = departmentTable.id 
         GROUP BY departmentTable.id;`;
         const [rows] = await db.promise().query(query);
-        console.table(rows);
+        console.table("\n", rows, "\n");
         startMenu();
     } catch (err) {
         console.log("Error Occurred: ", err);
     }
 };
+
+
+function viewEmployeesByManager() {
+    let sql = "SELECT * FROM employeeTable WHERE managerId = 9 or managerId = 10 or managerId is null";
+    db.query(sql, function (err, results) {
+        if (err) throw err;
+        let managers = results.map(result => result.firstName + " " + result.lastName);
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "manager",
+                message: "Select a manager",
+                choices: managers
+            }
+        ]).then(answer => {
+            let selectedManager = answer.manager;
+            let sql = "SELECT * FROM employeeTable WHERE id = (SELECT id FROM employeeTable WHERE CONCAT(firstName, ' ', lastName) = ?)";
+            db.query(sql, [selectedManager], function (err, results) {
+                //console.log([selectedManager]);
+                if (err) throw err;
+                console.table("\n", results, "\n");
+                startMenu();
+            });
+        });
+    });
+}
 
 
 // todos:
