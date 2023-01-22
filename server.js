@@ -39,6 +39,7 @@ function startMenu() {
                 "View all departments",
                 "View all roles",
                 "View all employees",
+                "View Salaries by department",
                 "Add a department",
                 "Add a role",
                 "Add an employee",
@@ -61,6 +62,9 @@ function startMenu() {
             case "View all employees":
                 viewAllEmployees();
                 break;
+            case "View Salaries by department":
+                viewSalariesByDepartment();
+                break;
             case "Add a department":
                 addDepartment();
                 break;
@@ -80,7 +84,7 @@ function startMenu() {
                 deleteEmployee();
                 break;
             case "Update an employee role":
-                updateEmployeeRole();
+                updateEmployee();
                 break;
             case "Exit":
                 exit();
@@ -295,8 +299,76 @@ async function deleteEmployee() {
     }
 }
 
+async function updateEmployee() {
+    try {
+        // Get existing employees from the database
+        const [rows] = await db.promise().query("SELECT id, CONCAT(firstName, ' ', lastName) as name FROM employeeTable");
+        const employees = rows.map(row => (
+            { 
+                name: row.name, 
+                value: row.id 
+            }
+        ));
+
+        // Use the list of employees to present the user with a choice
+        const { updateEmployee } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "updateEmployee",
+                message: "Choose the employee you want to update:",
+                choices: employees,
+            }
+        ]);
+
+        // Get the existing roles
+        const [roles] = await db.promise().query("SELECT id, title FROM roleTable");
+        const roleOptions = roles.map(role => (
+            { 
+                name: role.title, 
+                value: role.id 
+            }
+        ));
+
+        // Prompt the user to select a new role
+        const { role } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "role",
+                message: "Choose the new role for the employee:",
+                choices: roleOptions,
+            }
+        ]);
+
+        // Update the selected employee's role
+        const query = `UPDATE employeeTable SET roleId = ${role} WHERE id = ${updateEmployee}`;
+        await db.promise().query(query);
+        console.log("Employee role updated successfully");
+        startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+}
+
+async function viewSalariesByDepartment() {
+    try {
+        // Get the total salary for each department
+        const query = `
+        SELECT departmentTable.deptName as department, 
+        SUM(roleTable.salary) as total_salary
+        FROM employeeTable
+        JOIN roleTable ON employeeTable.roleId = roleTable.id 
+        JOIN departmentTable ON roleTable.departmentId = departmentTable.id 
+        GROUP BY departmentTable.id;`;
+        const [rows] = await db.promise().query(query);
+        console.table(rows);
+        startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+};
+
+
 // todos:
-// updateEmployeeRole()
 // exit()
 
 
