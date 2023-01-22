@@ -83,6 +83,7 @@ const viewAllDepartments = async () => {
             console.log("An Error Occured: ", err);
         } else {
             console.table(result);
+            startMenu();
         }
     });
 };
@@ -93,6 +94,7 @@ const viewAllRoles = async () => {
             console.log("An Error Occured: ", err);
         } else {
             console.table(result);
+            startMenu();
         }
     });
 };
@@ -103,11 +105,12 @@ const viewAllEmployees = async () => {
             console.log("An Error Occured: ", err);
         } else {
             console.table(result);
+            startMenu();
         }
     });
 };
 
-const addDepartment = async () => {
+async function addDepartment() {
     try {
         const answer = await inquirer.prompt ([
             {
@@ -120,19 +123,84 @@ const addDepartment = async () => {
         const query = `INSERT INTO departmentTable (deptName) VALUES ('${deptName}')`;
         await db.promise().query(query);
         console.log(`Department ${deptName} added successfully`);
+        startMenu();
     }   
     catch (err) {
         console.log("Error Occurred: ", err);
     }
-};
+}
+
+async function addRole() {
+    try {
+        const answer = await inquirer.prompt ([
+            {
+                type: "input",
+                name: "roleTitle",
+                message: "Enter the title of the new role:"
+            },
+            {
+                type: "input",
+                name: "roleSalary",
+                message: "Enter the salary of the new role:"
+            },
+            {
+                type: "input",
+                name: "deptId",
+                message: "Enter the department id of the new role:"
+            }
+        ]);
+        const {roleTitle, roleSalary, deptId} = answer;
+        const query = `INSERT INTO roleTable (title, salary, departmentId) VALUES ('${roleTitle}', '${roleSalary}', '${deptId}')`;
+        await db.promise().query(query);
+        console.log(`Role ${roleTitle} added successfully`);
+        startMenu();
+    }   
+    catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+}
+
+async function addEmployee() {
+    try {
+        const answers = await inquirer.prompt([
+            {
+                type: "input",
+                name: "firstName",
+                message: "Enter the first name of the new employee:"
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "Enter the last name of the new employee:"
+            },
+            {
+                type: "input",
+                name: "roleId",
+                message: "Enter the role ID of the new employee:"
+            },
+            {
+                type: "input",
+                name: "managerId",
+                message: "Enter the manager ID of the new employee (if any):"
+            }
+        ]);
+        const { firstName, lastName, roleId, managerId } = answers;
+        const query = `INSERT INTO employeeTable (firstName, lastName, roleId, managerId) 
+                       VALUES ('${firstName}', '${lastName}', '${roleId}', ${managerId || null})`;
+        await db.promise().query(query);
+        console.log(`Employee ${firstName} ${lastName} added successfully`);
+        startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+}
+
+
 
 
 
 
 // todos:
-// addDepartment()
-// addRole()
-// addEmployee()
 // updateEmployeeRole()
 // exit()
 
