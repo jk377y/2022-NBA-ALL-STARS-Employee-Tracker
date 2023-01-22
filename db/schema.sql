@@ -26,6 +26,6 @@ firstName VARCHAR(50) NOT NULL,
 lastName VARCHAR(50) NOT NULL,
 roleId INT,
 managerId INT
-FOREIGN KEY (roleId) REFERENCES roleTable(id) ON DELETE SET NULL,
-FOREIGN KEY (managerId) REFERENCES employeeTable(id) ON DELETE SET NULL 
+-- FOREIGN KEY (roleId) REFERENCES roleTable(id) ON DELETE SET NULL,
+-- FOREIGN KEY (managerId) REFERENCES employeeTable(id) ON DELETE SET NULL 
 );
