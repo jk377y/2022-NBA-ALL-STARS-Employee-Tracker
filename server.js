@@ -42,6 +42,9 @@ function startMenu() {
                 "Add a department",
                 "Add a role",
                 "Add an employee",
+                "Delete a department",
+                "Delete a role",
+                "Delete an employee",
                 "Update an employee role",
                 "Exit"
             ]
@@ -66,6 +69,15 @@ function startMenu() {
                 break;
             case "Add an employee":
                 addEmployee();
+                break;
+            case "Delete a department":
+                deleteDepartment();
+                break;
+            case "Delete a role":
+                deleteRole();
+                break;
+            case "Delete an employee":
+                deleteEmployee();
                 break;
             case "Update an employee role":
                 updateEmployeeRole();
@@ -150,7 +162,8 @@ async function addRole() {
             }
         ]);
         const {roleTitle, roleSalary, deptId} = answer;
-        const query = `INSERT INTO roleTable (title, salary, departmentId) VALUES ('${roleTitle}', '${roleSalary}', '${deptId}')`;
+        const query = `INSERT INTO roleTable (title, salary, departmentId) 
+                        VALUES ('${roleTitle}', '${roleSalary}', '${deptId}')`;
         await db.promise().query(query);
         console.log(`Role ${roleTitle} added successfully`);
         startMenu();
@@ -162,6 +175,10 @@ async function addRole() {
 
 async function addEmployee() {
     try {
+        // Get existing role IDs from the database
+        const [rows] = await db.promise().query("SELECT id FROM roleTable");
+        const roleIds = rows.map(row => row.id);
+        
         const answers = await inquirer.prompt([
             {
                 type: "input",
@@ -174,9 +191,10 @@ async function addEmployee() {
                 message: "Enter the last name of the new employee:"
             },
             {
-                type: "input",
+                type: "list",
                 name: "roleId",
-                message: "Enter the role ID of the new employee:"
+                message: "Choose the role ID for the new employee:",
+                choices: roleIds,
             },
             {
                 type: "input",
@@ -195,10 +213,87 @@ async function addEmployee() {
     }
 }
 
+async function deleteDepartment() {
+    try {
+        // Get existing departments from the database
+        const [rows] = await db.promise().query("SELECT id, deptName FROM departmentTable");
+        const departments = rows.map(row => ({ name: row.deptName, value: row.id }));
 
+        // Use the list of departments to present the user with a choice
+        const { departmentId } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "departmentId",
+                message: "Choose the department you want to delete:",
+                choices: departments,
+            }
+        ]);
 
+        // Delete the selected department
+        const query = `DELETE FROM departmentTable WHERE id = ${departmentId}`;
+        await db.promise().query(query);
+        console.log("Department deleted successfully");
+        startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+}
 
+async function deleteRole() {
+    try {
+        // Get existing roles from the database
+        const [rows] = await db.promise().query("SELECT id, title FROM roleTable");
+        const roles = rows.map(row => ({ name: row.title, value: row.id }));
 
+        // Use the list of roles to present the user with a choice
+        const { role } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "role",
+                message: "Choose the role you want to delete:",
+                choices: roles,
+            }
+        ]);
+            // Delete the selected role
+        const query = `DELETE FROM roleTable WHERE id = ${role}`;
+        await db.promise().query(query);
+            console.log("Role deleted successfully");
+            startMenu();
+        } catch (err) {
+            console.log("Error Occurred: ", err);
+        }
+}
+
+async function deleteEmployee() {
+    try {
+    // Get existing employees from the database
+    const [rows] = await db.promise().query("SELECT id, CONCAT(firstName, ' ', lastName) as name FROM employeeTable");
+    const employees = rows.map(row => (
+        { 
+            name: row.name, 
+            value: row.id 
+        }
+    ));
+    
+    // Use the list of employees to present the user with a choice
+    const { employeeName } = await inquirer.prompt([
+        {
+            type: "list",
+            name: "employeeName",
+            message: "Choose the employee you want to delete:",
+            choices: employees,
+        }
+    ]);
+    
+    // Delete the selected employee
+    const query = `DELETE FROM employeeTable WHERE id = ${employeeName}`;
+    await db.promise().query(query);
+    console.log("Employee deleted successfully");
+    startMenu();
+    } catch (err) {
+        console.log("Error Occurred: ", err);
+    }
+}
 
 // todos:
 // updateEmployeeRole()

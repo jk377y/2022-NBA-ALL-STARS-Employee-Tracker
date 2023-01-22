@@ -25,7 +25,7 @@ id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 firstName VARCHAR(50) NOT NULL,
 lastName VARCHAR(50) NOT NULL,
 roleId INT,
--- FOREIGN KEY (roleId) REFERENCES roleTable(id),
+FOREIGN KEY (roleId) REFERENCES roleTable(id),
 managerId INT
--- FOREIGN KEY (managerId) REFERENCES employeeTable(id)
+FOREIGN KEY (managerId) REFERENCES employeeTable(id)
 );
