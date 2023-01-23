@@ -33,7 +33,7 @@ Once the program loads, you will be presented with the main menu and can view, a
 <br>
 A demo of the application can be viewed here:
 <br>
-https://github.com/jk377y/2022-nba-all-stars-employee-tracker
+https://drive.google.com/file/d/1UbY_xcJ1caI6Os5PfnDyyO8WPjvEW5x8/view
 <br>
 
 The source code for the application can be viewed here:
