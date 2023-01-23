@@ -55,7 +55,6 @@ function startMenu() {  // present main menu options to the user
                 "View all roles",
                 "View all employees",
                 "View Salaries by department",
-                // "View Employees by Manager",  // not useable
                 "Add a department",
                 "Add a role",
                 "Add an employee",
@@ -81,9 +80,6 @@ function startMenu() {  // present main menu options to the user
             case "View Salaries by department":
                 viewSalariesByDepartment();
                 break;
-            // case "View Employees by Manager":  // not usable
-            //     viewEmployeesByManager();
-            //     break;
             case "Add a department":
                 addDepartment();
                 break;
@@ -212,11 +208,6 @@ async function addRole() {
                 name: "roleSalary",
                 message: "Enter the salary of the new role:"
             }
-            // {
-            //     type: "input",
-            //     name: "deptId",
-            //     message: "Enter the department id of the new role:"
-            // }
         ]);
         const {roleTitle, roleSalary} = answer;  // creating an INSERT command based on user input
         const query = `INSERT INTO roleTable (title, salary) 
@@ -232,7 +223,6 @@ async function addRole() {
 
 async function addEmployee() {
     try {
-        // Get existing role IDs from the database
         const [rows] = await db.promise().query("SELECT id FROM roleTable"); // querying the roleTable for all role IDs and storing them in [rows] then the returned data is destructured into rows
         const roleIds = rows.map(row => row.id); // using the map function to extract the id from each row and store it in an array called roleIds
         const answers = await inquirer.prompt([
@@ -406,35 +396,3 @@ function exit() {  // rearched to find it is best practice to "gracefully" close
     }
     process.exit();  // exits the application back to the command prompt
 }
-
-
-
-
-// Could not get to work
-// function viewEmployeesByManager() {
-//     let sql = "SELECT * FROM employeeTable WHERE managerId = 15 or managerId = 16 or managerId is null";
-//     db.query(sql, function (err, results) {
-//         if (err) throw err;
-//         let managers = results.map(result => result.firstName + " " + result.lastName);
-//         inquirer.prompt([
-//             {
-//                 type: "list",
-//                 name: "manager",
-//                 message: "Select a manager",
-//                 choices: managers
-//             }
-//         ]).then(answer => {
-//             let selectedManager = answer.manager;
-//             let sql = "SELECT * FROM employeeTable WHERE id = (SELECT id FROM employeeTable WHERE CONCAT(firstName, ' ', lastName) = ?)";
-//             db.query(sql, [selectedManager], function (err, results) {
-//                 //console.log([selectedManager]);
-//                 if (err) throw err;
-//                 console.table("\n", results, "\n");
-//                 startMenu();  // returns to main menu after above is executed
-//             });
-//         });
-//     });
-// }
-
-
-
