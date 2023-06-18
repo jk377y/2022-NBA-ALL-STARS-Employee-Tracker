@@ -1,7 +1,7 @@
 const mysql = require('mysql2')  // mysql2 module package
 const inquirer = require('inquirer')  // inquirer module package
 const cTable = require('console.table')  // console.table module package
-const dotenv = require('dotenv')  // dotenv module package
+// const dotenv = require('dotenv')  // dotenv module package
 require('dotenv').config()  // accessing .env variables
 
 // discovered an npm package to help decorate
